@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//
+// ENUMS
+//
+
+enum Role {
+  PARENT
+  STUDENT
+  TEACHER
+  ADMINISTRATOR
+}
+
+enum QuestionLevel {
+  CHILD
+  TEACHER
+}
+
+enum WorksheetVariant {
+  FREE
+  PAID
+}
+
+//
+// MODELS
+//
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+
+  // Relations
+  children          ChildProfile[]
+  assessmentResults AssessmentResult[]
+
+  @@map("users")
+}
+
+model ChildProfile {
+  id        String   @id @default(uuid())
+  name      String
+  ageMonths Int
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  // Parent Relation
+  parentId String
+  parent   User   @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  // Assessment Relation
+  assessmentResults AssessmentResult[]
+
+  @@map("child_profiles")
+}
+
+model Question {
+  id         Int           @id @default(autoincrement())
+  text       String        @db.Text
+  category   String
+  iconName   String
+  colorClass String
+  level      QuestionLevel @default(CHILD)
+  createdAt  DateTime      @default(now())
+
+  @@map("questions")
+}
+
+model Tip {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  category    String
+  duration    String
+  iconName    String
+  isMain      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@map("tips")
+}
+
+model Worksheet {
+  id               String           @id @default(uuid())
+  title            String
+  slug             String           @unique
+  description      String           @db.Text
+  shortDescription String?          @db.Text
+  category         String
+  subCategory      String?
+  price            Int              @default(0)
+  discountPrice    Int?
+  discountPercent  Int?
+  url              String?
+  variant          WorksheetVariant
+  mainImageUrl     String?
+  galleryImages    Json?
+  rating           Float            @default(0)
+  reviewCount      Int              @default(0)
+  soldCount        Int              @default(0)
+  stock            Int?
+  badge            String?
+  badges           Json?
+  features         Json?
+  specifications   Json?
+  shippingInfo     Json?
+  isBestSeller     Boolean          @default(false)
+  isPromo          Boolean          @default(false)
+  isPublished      Boolean          @default(true)
+  accentColor      String?
+  iconName         String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@map("worksheets")
+}
+
+model AssessmentResult {
+  id             String  @id @default(uuid())
+  userId         String
+  childProfileId String?
+
+  answers        Json
+  overallScore   Int
+  categoryResult String
+  focusSummary   String
+
+  focusAreas Json
+  skillsData Json
+
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  childProfile ChildProfile? @relation(fields: [childProfileId], references: [id])
+}

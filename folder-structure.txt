@@ -1,0 +1,46 @@
+│   .env
+│   .gitignore
+│   folder-structure.txt
+│   nodemon.json
+│   package-lock.json
+│   package.json
+│   tsconfig.json
+│   
+├───prisma
+│   │   schema.prisma
+│   │   seed.ts
+│   │   
+│   └───migrations
+│       │   migration_lock.toml
+│       │   
+│       └───20260508073625_init
+│               migration.sql
+│               
+└───src
+    │   index.ts
+    │   
+    ├───controllers
+    │       file.controller.ts
+    │       question.controller.ts
+    │       tip.controller.ts
+    │       
+    ├───lib
+    │       prisma.ts
+    │       
+    ├───middleware
+    │       auth.middleware.ts
+    │       
+    ├───routes
+    │       auth.routes.ts
+    │       file.routes.ts
+    │       question.routes.ts
+    │       tip.routes.ts
+    │       
+    ├───services
+    │       auth.service.ts
+    │       
+    ├───types
+    │       express.d.ts
+    │       
+    └───utils
+            jwt.ts
