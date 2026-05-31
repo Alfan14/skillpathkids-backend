@@ -48,28 +48,6 @@ app.use(
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      console.log("=================================");
-      console.log("CORS CHECK");
-      console.log("Incoming Origin:", origin);
-      console.log("Allowed Origins:", allowedOrigins);
-
-      if (!origin) {
-        console.log("CORS allowed: No origin detected");
-        console.log("=================================");
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.includes(origin)) {
-        console.log("CORS allowed for:", origin);
-        console.log("=================================");
-        return callback(null, true);
-      }
-
-      console.log("CORS blocked for:", origin);
-      console.log("=================================");
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
-    },
     credentials: true,
   })
 );
