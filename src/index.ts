@@ -20,20 +20,6 @@ const app = express();
 
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  process.env.FRONTEND_PROD_URL,
-].filter(Boolean) as string[];
-
-console.log("=================================");
-console.log("ENV CHECK");
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("PORT:", PORT);
-console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
-console.log("FRONTEND_PROD_URL:", process.env.FRONTEND_PROD_URL);
-console.log("Allowed Origins:", allowedOrigins);
-console.log("=================================");
-
 app.set("trust proxy", 1);
 
 app.use(helmet());
