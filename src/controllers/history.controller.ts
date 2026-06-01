@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import { prisma } from "../lib/prisma";
 
 export class HistoryController {
@@ -16,7 +15,7 @@ export class HistoryController {
       }
 
       const latestResult =
-        await prisma.assessmentResult.findFirst({
+        await prisma.assessmentresult.findFirst({
           where: {
             userId: req.user.userId,
           },
@@ -50,7 +49,7 @@ export class HistoryController {
       }
 
       const results =
-        await prisma.assessmentResult.findMany({
+        await prisma.assessmentresult.findMany({
           where: {
             userId: req.user.userId,
           },

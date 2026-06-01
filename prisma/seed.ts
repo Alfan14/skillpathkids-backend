@@ -1,4 +1,5 @@
 import { PrismaClient, Role, WorksheetVariant } from "@prisma/client";
+import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -12,7 +13,7 @@ async function main() {
     // =========================
   );
 
-  await prisma.assessmentResult.deleteMany();
+  await prisma.assessmentresult.deleteMany();
   await prisma.childProfile.deleteMany();
   await prisma.question.deleteMany();
   await prisma.tip.deleteMany();
@@ -483,8 +484,9 @@ async function main() {
   // ASSESSMENT RESULT
   // =========================
 
-  await prisma.assessmentResult.create({
+  await prisma.assessmentresult.create({
     data: {
+      id: randomUUID(),
       userId: parent.id,
       childProfileId: child.id,
       answers: {

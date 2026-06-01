@@ -125,11 +125,11 @@ export class AdminController {
         }),
         prisma.tip.count(),
         prisma.worksheet.count(),
-        prisma.assessmentResult.count(),
-        prisma.assessmentResult.aggregate({
+        prisma.assessmentresult.count(),
+        prisma.assessmentresult.aggregate({
           _avg: { overallScore: true },
         }),
-        prisma.assessmentResult.findFirst({
+        prisma.assessmentresult.findFirst({
           orderBy: { createdAt: "desc" },
           select: { createdAt: true },
         }),
@@ -151,12 +151,14 @@ export class AdminController {
           totalFiles,
           totalAssessments,
           averageOverallScore:
-            assessmentAggregate._avg.overallScore,
+            assessmentAggregate._avg.overallScore ?? 0,
           latestAssessmentAt:
             latestAssessment?.createdAt ?? null,
         },
       });
     } catch (error) {
+      console.error("[ADMIN_OVERVIEW_ERROR]", error);
+
       return res.status(500).json({
         success: false,
         message: "Failed to fetch admin overview",
@@ -257,11 +259,11 @@ export class AdminController {
 
       const { page, limit, skip } = parsePagination(req);
 
-      const where: Prisma.AssessmentResultWhereInput = {
+      const where: Prisma.assessmentresultWhereInput = {
         ...(categoryResult ? { categoryResult } : {}),
         ...(role
           ? {
-              user: {
+              users: {
                 role,
               },
             }
@@ -269,13 +271,13 @@ export class AdminController {
       };
 
       const [assessments, total] = await Promise.all([
-        prisma.assessmentResult.findMany({
+        prisma.assessmentresult.findMany({
           where,
           orderBy: { createdAt: "desc" },
           skip,
           take: limit,
           include: {
-            user: {
+            users: {
               select: {
                 id: true,
                 name: true,
@@ -283,7 +285,7 @@ export class AdminController {
                 role: true,
               },
             },
-            childProfile: {
+            child_profiles: {
               select: {
                 id: true,
                 name: true,
@@ -291,7 +293,7 @@ export class AdminController {
             },
           },
         }),
-        prisma.assessmentResult.count({ where }),
+        prisma.assessmentresult.count({ where }),
       ]);
 
       return res.status(200).json({
@@ -302,13 +304,13 @@ export class AdminController {
           data: assessments.map((assessment) => ({
             id: assessment.id,
             userId: assessment.userId,
-            userName: assessment.user.name,
-            userEmail: assessment.user.email,
-            userRole: assessment.user.role,
+            userName: assessment.users.name,
+            userEmail: assessment.users.email,
+            userRole: assessment.users.role,
             childProfileId:
               assessment.childProfileId ?? null,
             childName:
-              assessment.childProfile?.name ?? null,
+              assessment.child_profiles?.name ?? null,
             overallScore: assessment.overallScore,
             categoryResult: assessment.categoryResult,
             focusSummary: assessment.focusSummary,
@@ -324,6 +326,8 @@ export class AdminController {
         },
       });
     } catch (error) {
+      console.error("[ADMIN_ASSESSMENTS_ERROR]", error);
+
       return res.status(500).json({
         success: false,
         message: "Failed to fetch admin assessments",

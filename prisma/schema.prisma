@@ -7,60 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//
-// ENUMS
-//
-
-enum Role {
-  PARENT
-  STUDENT
-  TEACHER
-  ADMINISTRATOR
-}
-
-enum QuestionLevel {
-  CHILD
-  TEACHER
-}
-
-enum WorksheetVariant {
-  FREE
-  PAID
-}
-
-//
-// MODELS
-//
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role
-  createdAt DateTime @default(now())
-
-  // Relations
-  children          ChildProfile[]
-  assessmentResults AssessmentResult[]
+  id               String             @id @default(uuid())
+  email            String             @unique
+  password         String
+  name             String
+  role             Role
+  createdAt        DateTime           @default(now())
+  assessmentresult assessmentresult[]
+  children         ChildProfile[]
 
   @@map("users")
 }
 
 model ChildProfile {
-  id        String   @id @default(uuid())
-  name      String
-  ageMonths Int
-  avatarUrl String?
-  createdAt DateTime @default(now())
+  id               String             @id @default(uuid())
+  name             String
+  ageMonths        Int
+  avatarUrl        String?
+  createdAt        DateTime           @default(now())
+  parentId         String
+  assessmentresult assessmentresult[]
+  parent           User               @relation(fields: [parentId], references: [id], onDelete: Cascade)
 
-  // Parent Relation
-  parentId String
-  parent   User   @relation(fields: [parentId], references: [id], onDelete: Cascade)
-
-  // Assessment Relation
-  assessmentResults AssessmentResult[]
-
+  @@index([parentId], map: "child_profiles_parentId_fkey")
   @@map("child_profiles")
 }
 
@@ -70,8 +40,8 @@ model Question {
   category   String
   iconName   String
   colorClass String
-  level      QuestionLevel @default(CHILD)
   createdAt  DateTime      @default(now())
+  level      QuestionLevel @default(CHILD)
 
   @@map("questions")
 }
@@ -92,23 +62,26 @@ model Tip {
 model Worksheet {
   id               String           @id @default(uuid())
   title            String
-  slug             String           @unique
   description      String           @db.Text
+  url              String?
+  variant          WorksheetVariant
+  badge            String?
+  accentColor      String?
+  iconName         String?
+  createdAt        DateTime         @default(now())
+  slug             String           @unique
   shortDescription String?          @db.Text
   category         String
   subCategory      String?
   price            Int              @default(0)
   discountPrice    Int?
   discountPercent  Int?
-  url              String?
-  variant          WorksheetVariant
   mainImageUrl     String?
   galleryImages    Json?
   rating           Float            @default(0)
   reviewCount      Int              @default(0)
   soldCount        Int              @default(0)
   stock            Int?
-  badge            String?
   badges           Json?
   features         Json?
   specifications   Json?
@@ -116,29 +89,42 @@ model Worksheet {
   isBestSeller     Boolean          @default(false)
   isPromo          Boolean          @default(false)
   isPublished      Boolean          @default(true)
-  accentColor      String?
-  iconName         String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  updatedAt        DateTime         @default(now()) @updatedAt
 
   @@map("worksheets")
 }
 
-model AssessmentResult {
-  id             String  @id @default(uuid())
+model assessmentresult {
+  id             String        @id
   userId         String
   childProfileId String?
-
   answers        Json
   overallScore   Int
   categoryResult String
   focusSummary   String
+  focusAreas     Json
+  skillsData     Json
+  createdAt      DateTime      @default(now())
+  child_profiles ChildProfile? @relation(fields: [childProfileId], references: [id], map: "AssessmentResult_childProfileId_fkey")
+  users          User          @relation(fields: [userId], references: [id], map: "AssessmentResult_userId_fkey")
 
-  focusAreas Json
-  skillsData Json
+  @@index([childProfileId], map: "AssessmentResult_childProfileId_fkey")
+  @@index([userId], map: "AssessmentResult_userId_fkey")
+}
 
-  createdAt DateTime @default(now())
+enum Role {
+  PARENT
+  STUDENT
+  TEACHER
+  ADMINISTRATOR
+}
 
-  user         User          @relation(fields: [userId], references: [id])
-  childProfile ChildProfile? @relation(fields: [childProfileId], references: [id])
+enum QuestionLevel {
+  CHILD
+  TEACHER
+}
+
+enum WorksheetVariant {
+  FREE
+  PAID
 }

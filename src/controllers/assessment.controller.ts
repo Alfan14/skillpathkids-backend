@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Role } from "@prisma/client";
+import { randomUUID } from "crypto";
 
 import { prisma } from "../lib/prisma";
 
@@ -110,8 +111,9 @@ export class AssessmentController {
       };
 
       const assessment =
-        await prisma.assessmentResult.create({
+        await prisma.assessmentresult.create({
           data: {
+            id: randomUUID(),
             userId: req.user.userId,
             childProfileId:
               childProfileId || null,
