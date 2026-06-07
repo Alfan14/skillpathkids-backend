@@ -14,6 +14,7 @@ import tipRoutes from "./routes/tip.routes";
 import fileRoutes from "./routes/file.routes";
 import adminRoutes from "./routes/admin.routes";
 import teacherRoutes from "./routes/teacher.routes";
+import parentRoutes from "./routes/parent.routes";
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use("/api/tips", tipRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/teacher", teacherRoutes);
+app.use("/api/parent", parentRoutes);
 
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

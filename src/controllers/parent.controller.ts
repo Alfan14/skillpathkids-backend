@@ -45,30 +45,33 @@ const createPagination = (
   totalPages: Math.ceil(total / limit),
 });
 
-export class TeacherController {
+export class ParentController {
   static async getResults(
     req: Request,
     res: Response
   ) {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
+
       const categoryResult = getSingleQueryValue(
         req.query.categoryResult
       );
-      const search = getSingleQueryValue(req.query.search);
+      const childProfileId = getSingleQueryValue(
+        req.query.childProfileId
+      );
       const { page, limit, skip } = parsePagination(req);
 
       const where: Prisma.assessmentresultWhereInput = {
+        userId: req.user.userId,
         ...(categoryResult ? { categoryResult } : {}),
+        ...(childProfileId ? { childProfileId } : {}),
         users: {
-          role: Role.TEACHER,
-          ...(search
-            ? {
-                OR: [
-                  { name: { contains: search } },
-                  { email: { contains: search } },
-                ],
-              }
-            : {}),
+          role: Role.PARENT,
         },
       };
 
@@ -100,8 +103,7 @@ export class TeacherController {
 
       return res.status(200).json({
         success: true,
-        message:
-          "Teacher results fetched successfully",
+        message: "Parent results fetched successfully",
         data: {
           data: assessments.map((assessment) => ({
             id: assessment.id,
@@ -128,11 +130,11 @@ export class TeacherController {
         },
       });
     } catch (error) {
-      console.error("[TEACHER_RESULTS_ERROR]", error);
+      console.error("[PARENT_RESULTS_ERROR]", error);
 
       return res.status(500).json({
         success: false,
-        message: "Failed to fetch teacher results",
+        message: "Failed to fetch parent results",
       });
     }
   }
